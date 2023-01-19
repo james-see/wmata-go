@@ -14,7 +14,10 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/echo", echoHandler)
-	http.ListenAndServe("localhost:5000", mux)
+	err := http.ListenAndServe("127.0.0.1:5000", mux)
+	if err != nil {
+		fmt.Println(err)
+	}
 }
 
 func echoHandler(w http.ResponseWriter, r *http.Request) {
@@ -26,7 +29,7 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 
 	// make the request
 	url := "https://api.wmata.com/StationPrediction.svc/json/GetPrediction/C05"
-	payload := strings.NewReader("")
+	payload := strings.NewReader("body")
 	req, _ := http.NewRequest("GET", url, payload)
 	req.Header.Add("api_key", config.WmataAPI)
 	res, err := http.DefaultClient.Do(req)
@@ -43,18 +46,20 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// put the data back from the full struct and arrays into a single struct to filter out what we need
-	destination := &util.CurrentStatus{}
+	var destination util.CurrentStatus
+	var listofdestinations []util.CurrentStatus
 	for _, car := range trains.Cars {
-		if car.DestinationCode == "K08" {
+		if car.DestinationCode == "K08" || car.DestinationCode == "N12" {
 			// only need to grab one of the statuses
 			destination.Status = car.Min
 			destination.Destination = car.Destination
 			destination.LocationName = car.LocationName
-			break
+			listofdestinations = append(listofdestinations, destination)
 		}
 
 	}
-	fmt.Printf("Destination: %v\n", destination.Destination)
-	fmt.Printf("Time to Board: %v\n", destination.Status)
-
+	for _, destiny := range listofdestinations {
+		fmt.Printf("Destination: %v\n", destiny.Destination)
+		fmt.Printf("Time to Board: %v\n", destiny.Status)
+	}
 }
