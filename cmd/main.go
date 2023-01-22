@@ -41,6 +41,7 @@ func echoHandler(w http.ResponseWriter, r *http.Request) {
 	// put the data into a struct that holds the json array
 	trains := util.Train{}
 	err = json.NewDecoder(res.Body).Decode(&trains)
+	fmt.Println(trains)
 	if err != nil {
 		panic(err)
 	}
