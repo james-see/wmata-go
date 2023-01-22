@@ -16,5 +16,6 @@
   },
   "devDependencies": {
     "parcel-bundler": "^1.12.5"
-  }
+  },
+  "proxy": "https://api.wmata.com"
 }
